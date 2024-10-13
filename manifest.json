@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "Text Finder Navigator",
+    "description": "Navigate through a list of strings on a webpage using k to start and n to navigate.",
+    "version": "1.0",
+    "permissions": ["activeTab", "storage", "scripting", "clipboardRead"],
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"]
+      }
+    ]
+  }
