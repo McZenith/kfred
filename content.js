@@ -1,27 +1,35 @@
 let textList = [];
 let currentIndex = 0;
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.textList && message.textList.length > 0) {
-    textList = message.textList;
-    currentIndex = 0;
-    console.log('Text list received from clipboard:', textList);
-    findAndHighlightText(textList[currentIndex]);
+// Function to handle 'k' key press to start the process
+document.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'k' && !e.ctrlKey && !e.altKey) {
+    // Read clipboard text
+    navigator.clipboard
+      .readText()
+      .then((clipboardText) => {
+        textList = clipboardText
+          .split('\n')
+          .map((s) => s.trim())
+          .filter(Boolean); // Remove empty lines and trim spaces
+
+        if (textList.length > 0) {
+          console.log('Text list received from clipboard:', textList);
+          currentIndex = 0;
+          findAndHighlightText(textList[currentIndex]);
+        } else {
+          console.log('Clipboard is empty or does not contain valid strings.');
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to read clipboard: ', err);
+      });
   }
 });
 
-// Listen for 'k' key to start the search and 'n' key to move to the next text
-document.addEventListener('keydown', (e) => {
-  if (e.key.toLowerCase() === 'k' && !e.ctrlKey && !e.altKey) {
-    if (textList.length > 0) {
-      console.log('Starting with first text:', textList[currentIndex]);
-      findAndHighlightText(textList[currentIndex]);
-    } else {
-      console.log('No text list available.');
-    }
-  }
-
-  if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.altKey) {
+// Function to handle 'n' key press to move to the next text
+document.addEventListener("keydown", (e) => {
+  if (e.key.toLowerCase() === "n" && !e.ctrlKey && !e.altKey) {
     if (textList.length > 0) {
       currentIndex = (currentIndex + 1) % textList.length;
       console.log('Moving to next text:', textList[currentIndex]);
@@ -40,7 +48,7 @@ function findAndHighlightText(text) {
 
   const bodyText = document.body.innerText.toLowerCase();
   const textToFind = text.toLowerCase();
-
+  
   if (bodyText.includes(textToFind)) {
     console.log(`Found "${text}" on the page.`);
     highlightTextOnPage(textToFind);
